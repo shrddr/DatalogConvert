@@ -8,38 +8,34 @@ using System.Threading.Tasks;
 
 namespace DatalogConvert
 {
-    class Program
+    public class Program
     {
         class TagTableRow
         {
-            public string tn;
-            public Int16 ti;
-            public byte tt;
-            public Int16 td;
-            public int met;
-            public int used;
-            public Int16 newIndex;
-        }
-
-        class TagInfo
-        {
             public string name;
-            public Int16 newIndex;
-            public byte tt;
-            public Int16 td;
-            public int met;
-            public int used;
+            public Int16 index;
+            public byte type;
+            public Int16 datatype;
         }
 
         class FloatTableRow
         {
             public DateTime dt;
-            public Int16 mi;
-            public Int16 ti;
-            public double v;
-            public char s;
-            public char m;
-            public Int16 newIndex;
+            public Int16 millitm;
+            public Int16 tagindex;
+            public double value;
+            public char status;
+            public char marker;
+        }
+
+        class TagInfo
+        {
+            public string name;
+            public byte type;
+            public Int16 datatype;
+            public bool isFinalized;
+            public double initialValue;
+            public int lastRowId;
         }
 
         static byte[] makeTagHeader(Int32 rowcount)
@@ -250,35 +246,37 @@ namespace DatalogConvert
 
         static void Main(string[] args)
         {
-            if (args.Length < 4)
+            if (args.Length < 7)
             {
                 Console.WriteLine("Error: argument not found");
-                Console.WriteLine("Usage: DatalogConvert ServerName CatalogName User Password");
+                Console.WriteLine("Usage: DatalogConvert ServerName CatalogName User Password FloatTable TagTable StringTable");
                 Console.ReadLine();
                 return;
             }
-                
-            string DBServer = args[0];
-            string DBCatalog = args[1];
-            string DBUser = args[2];
-            string DBPassword = args[3];
+
+            string connString = $"Data Source={args[0]};Initial Catalog={args[1]};Persist Security Info=True;User ID={args[2]};Password={args[3]}";
+            Make(connString, args[4], args[5], args[6]);
+
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadLine();
+        }
+
+        public static void Make(string connString, string TablePrefix)
+        {
+            Make(connString, $"{TablePrefix}FloatTable", $"{TablePrefix}TagTable", $"{TablePrefix}StringTable");
+        }
+
+        public static void Make(string connString, string FloatTableName, string TagTableName, string StringTableName)
+        {
             List<TagTableRow> TagTableRows = new List<TagTableRow>();
             List<DateTime> Dates = new List<DateTime>();
-
-            string connString = string.Format(
-                "Data Source={0};Initial Catalog={1};Persist Security Info=True;User ID={2};Password={3}",
-                DBServer,
-                DBCatalog,
-                DBUser,
-                DBPassword
-            );
 
             using (SqlConnection conn = new SqlConnection(connString))
             {
                 try
                 {
                     conn.Open();
-                    string sql = "SELECT * FROM TagTable ORDER BY TagIndex";
+                    string sql = $"SELECT * FROM [{TagTableName}] ORDER BY TagIndex";
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -288,10 +286,10 @@ namespace DatalogConvert
                         Int16 ti = reader.GetInt16(1);
                         byte tt = (byte)reader.GetInt16(2);
                         Int16 td = reader.GetInt16(3);
-                        TagTableRows.Add(new TagTableRow() { tn = tn, ti = ti, tt = tt, td = td });
+                        TagTableRows.Add(new TagTableRow() { name = tn, index = ti, type = tt, datatype = td });
                     }
                     reader.Close();
-                    Console.WriteLine("Tags: " + TagTableRows.Count);    
+                    Console.WriteLine("Tags: " + TagTableRows.Count);
                 }
                 catch (Exception ex)
                 {
@@ -300,9 +298,8 @@ namespace DatalogConvert
 
                 try
                 {
-                    string sql = "SELECT DISTINCT(CAST(DateAndTime AS DATE)) FROM FloatTable";
-                    SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.CommandTimeout = 600;
+                    string sql = $"SELECT DISTINCT(CAST(DateAndTime AS DATE)) FROM [{FloatTableName}]";
+                    SqlCommand cmd = new SqlCommand(sql, conn) { CommandTimeout = 600 };
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
@@ -320,120 +317,123 @@ namespace DatalogConvert
 
                 try
                 {
-                    foreach (DateTime day in Dates)
+                    foreach (DateTime currentDay in Dates)
                     {
-                        for (int i = 0; i < TagTableRows.Count; i++)
-                        {
-                            TagTableRows[i].met = 0;
-                            TagTableRows[i].used = 0;
-                            TagTableRows[i].newIndex = 0;
-                        }
-
                         List<FloatTableRow> FloatTableRows = new List<FloatTableRow>();
                         var TagData = new Dictionary<Int16, TagInfo>();
 
-                        string sql = "SELECT * FROM FloatTable WHERE DATEDIFF(day, DateAndTime, @DT) = 0 ORDER BY DateAndTime, TagIndex";
-                        SqlCommand cmd = new SqlCommand(sql, conn);
-                        cmd.CommandTimeout = 600;
-                        cmd.Parameters.AddWithValue("DT", day);
+                        string sql = $"SELECT * FROM [{FloatTableName}] WHERE DateAndTime > @DT AND DateAndTime < DATEADD(day, 1, @DT) ORDER BY DateAndTime, Millitm";
+                        SqlCommand cmd = new SqlCommand(sql, conn) { CommandTimeout = 600 };
+                        cmd.Parameters.AddWithValue("DT", currentDay);
                         SqlDataReader reader = cmd.ExecuteReader();
 
-                        Int16 newTagIndex = 0;
+                        // first scan: 
                         while (reader.Read())
                         {
                             DateTime dt = reader.GetDateTime(0);
                             Int16 mi = reader.GetInt16(1);
-                            Int16 ti = reader.GetInt16(2);
+                            Int16 tagindex = reader.GetInt16(2);
                             double v = reader.GetDouble(3);
                             string str = reader.GetString(4);
                             char s = str[0];
                             str = reader.GetString(5);
                             char m = str[0];
 
-                            if (!TagData.ContainsKey(ti))
+                            if (!TagData.ContainsKey(tagindex))
                             {
-                                TagTableRow t = TagTableRows.Find(x => x.ti == ti);
-                                TagData.Add(t.ti, new TagInfo() { name = t.tn, newIndex = newTagIndex++, tt = t.tt, td = t.td, met = 1, used = 0 });
-                                FloatTableRows.Add(new FloatTableRow() { dt = dt, mi = mi, ti = ti, v = v, s = 'S', m = 'B', newIndex = TagData[ti].newIndex });
+                                TagTableRow t = TagTableRows.Find(row => row.index == tagindex);
+                                // TODO: initialValue can be interpolated nicely between last record of previous day and first value of current day
+                                TagData.Add(t.index, new TagInfo() {
+                                    name = t.name,
+                                    type = t.type,
+                                    datatype = t.datatype,
+                                    initialValue = v,
+                                    lastRowId = -1 });
+                                m = 'B';
                             }
-                            else
-                            {
-                                FloatTableRows.Add(new FloatTableRow() { dt = dt, mi = mi, ti = ti, v = v, s = s, m = m, newIndex = TagData[ti].newIndex });
-                                TagData[ti].met++;
-                            }
+                            FloatTableRows.Add(new FloatTableRow() {
+                                dt = dt,
+                                millitm = mi,
+                                tagindex = tagindex,
+                                value = v,
+                                status = s,
+                                marker = m });
+
+                            TagData[tagindex].isFinalized = (m == 'E');
                         }
                         reader.Close();
 
-                        string dayString = day.ToString("yyyy MM dd");
+                        // if last occurence of a tag is not marked with 'E', add it
+                        // if it already has B marker, duplicate the row
+                        foreach (short i in TagData.Keys)
+                        {
+                            TagInfo t = TagData[i];
+                            if (t.isFinalized) continue;
+                            var lastRow = FloatTableRows.Where(row => row.tagindex == i).Last();
+                            if (lastRow.marker == 'B')
+                                FloatTableRows.Add(new FloatTableRow() {
+                                    dt = lastRow.dt,
+                                    millitm = lastRow.millitm,
+                                    tagindex = lastRow.tagindex,
+                                    value = lastRow.value,
+                                    status = lastRow.status,
+                                    marker = 'E'
+                                });
+                            else
+                                lastRow.marker = 'E';
+                        }
+
+                        string dayString = currentDay.ToString("yyyy MM dd");
                         Console.WriteLine(dayString + " values: " + FloatTableRows.Count);
-                        string dayTagFile = dayString + " 0000 (Tagname).DAT";
                         string dayFloatFile = dayString + " 0000 (Float).DAT";
+                        string dayTagFile = dayString + " 0000 (Tagname).DAT";
                         string dayStringFile = dayString + " 0000 (String).DAT";
-                        byte[] tagHeader = makeTagHeader(TagData.Count);
                         byte[] floatHeader = makeFloatHeader(FloatTableRows.Count);
+                        byte[] tagHeader = makeTagHeader(TagData.Count);
                         byte[] stringHeader = makeStringHeader(0);
-                        Int32 internalCounter = 0;
-                        
+
                         using (BinaryWriter writer = new BinaryWriter(File.Open(dayFloatFile, FileMode.Create)))
                         {
                             writer.Write(floatHeader);
+
+                            int currentRow = 0;
                             foreach (FloatTableRow f in FloatTableRows)
                             {
                                 writer.Write((byte)0x20);
                                 writer.Write(Encoding.ASCII.GetBytes(f.dt.ToString("yyyyMMdd")));
                                 writer.Write(Encoding.ASCII.GetBytes(f.dt.ToString("HH:mm:ss")));
-                                writer.Write(Encoding.ASCII.GetBytes(f.dt.ToString("fff")));
-                                writer.Write(Encoding.ASCII.GetBytes(f.newIndex.ToString().PadLeft(5, ' ')));
-                                writer.Write(f.v);
-                                writer.Write(f.s);
-
-                                TagData[f.ti].used++;
-
-                                if (TagData[f.ti].used == TagData[f.ti].met)
-                                {
-                                    writer.Write('E');
-                                    writer.Write(internalCounter++);
-                                }
-                                else
-                                {
-                                    writer.Write(f.m);
-
-                                    if (f.m == 'B')
-                                        writer.Write(0xFFFFFFFF);
-                                    else
-                                        writer.Write(internalCounter++);
-                                }
-                            }
+                                writer.Write(Encoding.ASCII.GetBytes(f.millitm.ToString().PadLeft(3, ' ')));
+                                writer.Write(Encoding.ASCII.GetBytes(f.tagindex.ToString().PadLeft(5, ' ')));
+                                writer.Write(f.value);
+                                writer.Write(f.status);
+                                writer.Write(f.marker);
+                                writer.Write(TagData[f.tagindex].lastRowId);
+                                TagData[f.tagindex].lastRowId = currentRow++;
+                            } 
                         }
                         using (BinaryWriter writer = new BinaryWriter(File.Open(dayTagFile, FileMode.Create)))
                         {
                             writer.Write(tagHeader);
-                            foreach (TagInfo t in TagData.Values)
+                            foreach (short i in TagData.Keys)
                             {
-                                if (t.met == 0) continue;
+                                TagInfo t = TagData[i];
                                 writer.Write((byte)0x20);
                                 writer.Write(Encoding.ASCII.GetBytes(t.name.ToUpper().PadRight(255, ' ')));
-                                writer.Write(Encoding.ASCII.GetBytes(t.newIndex.ToString().PadLeft(5, ' ')));
-                                writer.Write(Encoding.ASCII.GetBytes(t.tt.ToString().PadLeft(1, ' ')));
-                                writer.Write(Encoding.ASCII.GetBytes(t.td.ToString().PadLeft(2, ' ')));
+                                writer.Write(Encoding.ASCII.GetBytes(i.ToString().PadLeft(5, ' ')));
+                                writer.Write(Encoding.ASCII.GetBytes(t.type.ToString().PadLeft(1, ' ')));
+                                writer.Write(Encoding.ASCII.GetBytes(t.datatype.ToString().PadLeft(2, ' ')));
                             }
                             writer.Write((byte)0x1A);
                         }
                         using (BinaryWriter writer = new BinaryWriter(File.Open(dayStringFile, FileMode.Create)))
                             writer.Write(stringHeader);
-
-                        //break; // one day only
                     }
-                    
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error reading values: " + ex.Message);
                 }
             }
-
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadLine();
         }
     }
 }
