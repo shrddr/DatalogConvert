@@ -246,16 +246,20 @@ namespace DatalogConvert
 
         static void Main(string[] args)
         {
-            if (args.Length < 7)
+            if (args.Length < 4)
             {
                 Console.WriteLine("Error: argument not found");
-                Console.WriteLine("Usage: DatalogConvert ServerName CatalogName User Password FloatTable TagTable StringTable");
+                Console.WriteLine("Usage: DatalogConvert ServerName CatalogName User Password [FloatTable] [TagTable] [StringTable]");
                 Console.ReadLine();
                 return;
             }
 
+            string FloatTable = args.Length > 4 ? args[4] : "FloatTable";
+            string TagTable = args.Length > 5 ? args[5] : "TagTable";
+            string StringTable = args.Length > 6 ? args[6] : "StringTable";
+
             string connString = $"Data Source={args[0]};Initial Catalog={args[1]};Persist Security Info=True;User ID={args[2]};Password={args[3]}";
-            Make(connString, args[4], args[5], args[6]);
+            Make(connString, FloatTable, TagTable, StringTable);
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadLine();

@@ -2,8 +2,14 @@ This tool fetches data from FactoryTalk SQL-based datalog and creates File Set d
 
 How to use: first make sure you can connect to the SQL Server. Then run:
 
-```js
-DatalogConvert PCname\SQLinstnce master user password FloatTable TagTable StringTable
+```
+DatalogConvert PCname\SQLinstance master user password
+```
+
+If you have non-default table names:
+
+```
+DatalogConvert PCname\SQLinstance master user password FloatTableName TagTableName StringTableName
 ```
 
 This should generate a bunch of daily DAT files like this:
