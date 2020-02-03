@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DatalogConvert
+namespace sql2dat
 {
     public class Program
     {
@@ -249,7 +249,7 @@ namespace DatalogConvert
             if (args.Length < 4)
             {
                 Console.WriteLine("Error: argument not found");
-                Console.WriteLine("Usage: DatalogConvert ServerName CatalogName User Password [FloatTable] [TagTable] [StringTable]");
+                Console.WriteLine("Usage: sql2dat ServerName CatalogName User Password [FloatTable] [TagTable] [StringTable]");
                 Console.ReadLine();
                 return;
             }
@@ -259,18 +259,18 @@ namespace DatalogConvert
             string StringTable = args.Length > 6 ? args[6] : "StringTable";
 
             string connString = $"Data Source={args[0]};Initial Catalog={args[1]};Persist Security Info=True;User ID={args[2]};Password={args[3]}";
-            Make(connString, FloatTable, TagTable, StringTable);
+            MakeDatFiles(connString, FloatTable, TagTable, StringTable);
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadLine();
         }
 
-        public static void Make(string connString, string TablePrefix)
+        public static void MakeDatFiles(string connString, string TablePrefix)
         {
-            Make(connString, $"{TablePrefix}FloatTable", $"{TablePrefix}TagTable", $"{TablePrefix}StringTable");
+            MakeDatFiles(connString, $"{TablePrefix}FloatTable", $"{TablePrefix}TagTable", $"{TablePrefix}StringTable");
         }
 
-        public static void Make(string connString, string FloatTableName, string TagTableName, string StringTableName)
+        public static void MakeDatFiles(string connString, string FloatTableName, string TagTableName, string StringTableName)
         {
             List<TagTableRow> TagTableRows = new List<TagTableRow>();
             List<DateTime> Dates = new List<DateTime>();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DatalogConvert;
+using sql2dat;
 using System.Threading;
 using System.Collections.Generic;
 using System.IO;
@@ -45,7 +45,7 @@ namespace UnitTests
     }
 
     [TestClass]
-    public class UnitTest1
+    public class test_sql2dat
     {
         string connString = $"Data Source=A20180213\\DATALOG;Initial Catalog=master;Persist Security Info=True;User ID=sa;Password=123qwe!@#";
 
@@ -248,7 +248,7 @@ AI\EIA1_2,    1,2, 1,
 11/12/2018,00:02:01,980,    0,       7.53587818, , ,         2,
 11/12/2018,00:02:01,980,    1,       5.03494072, , ,         3,");
             CreateTables("no_bs_and_es_", inData);
-            Program.Make(connString, "no_bs_and_es_");
+            Program.MakeDatFiles(connString, "no_bs_and_es_");
 
             var outData = readDAT("2018 11 12 0000 (Tagname).DAT", "2018 11 12 0000 (Float).DAT");
             PrettyPrint(inData, outData);
@@ -293,7 +293,7 @@ AI\BSK_TARGET,    9,2, 1,
 11/13/2018,00:02:55,980,    8,       0.00000000, ,E,        8,
 11/13/2018,00:02:55,980,    9,     750.00000000, ,E,        9,");
             CreateTables("bs_and_es_", inData);
-            Program.Make(connString, "bs_and_es_");
+            Program.MakeDatFiles(connString, "bs_and_es_");
 
             var outData = readDAT("2018 11 13 0000 (Tagname).DAT", "2018 11 13 0000 (Float).DAT");
             PrettyPrint(inData, outData);
@@ -351,7 +351,7 @@ AI\BSK_TARGET,    9,2, 1,
 11/14/2018,00:09:55,980,    8,       0.00000000, ,E,        18,
 11/14/2018,00:09:55,980,    9,     750.00000000, ,E,        19,");
             CreateTables("b_e_diff_", inData);
-            Program.Make(connString, "b_e_diff_");
+            Program.MakeDatFiles(connString, "b_e_diff_");
 
             var data1 = readDAT("2018 11 13 0000 (Tagname).DAT", "2018 11 13 0000 (Float).DAT");
             var Day1_B_count = data1.floats.Where(f => f.marker == "B").Count();
@@ -460,7 +460,7 @@ AI\BSK_TARGET,    9,2, 1,
 11/13/2018,00:02:55,980,    9,     750.00000000, ,E,        53,
 ");
             CreateTables("10tags_2changing_", inData);
-            Program.Make(connString, "10tags_2changing_");
+            Program.MakeDatFiles(connString, "10tags_2changing_");
 
             var outData = readDAT("2018 11 13 0000 (Tagname).DAT", "2018 11 13 0000 (Float).DAT");
             PrettyPrint(inData, outData);
@@ -560,7 +560,7 @@ AI\BSK_TARGET,    9,2, 1,
 11/15/2018,22:07:28,557,    9,     750.00000000, ,E,        53,
 ");
             CreateTables("10tags_3changing_", inData);
-            Program.Make(connString, "10tags_3changing_");
+            Program.MakeDatFiles(connString, "10tags_3changing_");
 
             var outData = readDAT("2018 11 15 0000 (Tagname).DAT", "2018 11 15 0000 (Float).DAT");
             PrettyPrint(inData, outData);
@@ -584,7 +584,7 @@ AI\EIA1_2,    1,2, 1,
 11/12/2018,00:02:01,980,    0,       7.53587818, ,E,         2,
 11/12/2018,00:02:01,980,    1,       5.03494072, ,E,         3,");
             CreateTables("simplest_", inData);
-            Program.Make(connString, "simplest_");
+            Program.MakeDatFiles(connString, "simplest_");
 
             var outData = readDAT("2018 11 12 0000 (Tagname).DAT", "2018 11 12 0000 (Float).DAT");
             PrettyPrint(inData, outData);
@@ -650,7 +650,7 @@ AI\BSK_TARGET,    9,2, 1,
 11/13/2018,00:09:55,980,    8,       0.00000000, ,E,        20,
 11/13/2018,00:09:55,980,    9,       0.00000000, ,E,        21,");
             CreateTables("internal1_heartbeat_and_onchange_mix_", inData);
-            Program.Make(connString, "internal1_heartbeat_and_onchange_mix_");
+            Program.MakeDatFiles(connString, "internal1_heartbeat_and_onchange_mix_");
 
             var outData = readDAT("2018 11 13 0000 (Tagname).DAT", "2018 11 13 0000 (Float).DAT");
             PrettyPrint(inData, outData);
@@ -716,7 +716,7 @@ AI\BSK_TARGET,    9,2, 1,
 11/13/2018,00:09:55,980,    8,       0.00000000, ,E,        20,
 11/13/2018,00:09:55,980,    9,       0.00000000, ,E,        21,");
             CreateTables("internal2_weird_numbering_", inData);
-            Program.Make(connString, "internal2_weird_numbering_");
+            Program.MakeDatFiles(connString, "internal2_weird_numbering_");
 
             var outData = readDAT("2018 11 13 0000 (Tagname).DAT", "2018 11 13 0000 (Float).DAT");
             PrettyPrint(inData, outData);
