@@ -1,6 +1,6 @@
 ### sql2dat
 
-This tool fetches data from FactoryTalk SQL-based datalog and creates File Set datalog files with the same content. This might help with your trend performance (if you don't know how to index your DB).
+This tool fetches data from FactoryTalk SQL-based datalog and creates File Set datalog files with the same content.
 
 How to use: first make sure you can connect to the SQL Server. Then run:
 
