@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dat2sql", "dat2sql\dat2sql.csproj", "{28B20098-03E6-4887-AA32-F597AA016855}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dat2fth", "dat2fth\dat2fth.csproj", "{74F26AB8-6A70-4E9E-859B-4AB7982958B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{28B20098-03E6-4887-AA32-F597AA016855}.Release|x64.Build.0 = Release|Any CPU
 		{28B20098-03E6-4887-AA32-F597AA016855}.Release|x86.ActiveCfg = Release|Any CPU
 		{28B20098-03E6-4887-AA32-F597AA016855}.Release|x86.Build.0 = Release|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Debug|x64.Build.0 = Debug|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Debug|x86.Build.0 = Debug|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Release|x64.ActiveCfg = Release|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Release|x64.Build.0 = Release|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Release|x86.ActiveCfg = Release|Any CPU
+		{74F26AB8-6A70-4E9E-859B-4AB7982958B8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

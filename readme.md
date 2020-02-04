@@ -1,15 +1,17 @@
+### sql2dat
+
 This tool fetches data from FactoryTalk SQL-based datalog and creates File Set datalog files with the same content. This might help with your trend performance (if you don't know how to index your DB).
 
 How to use: first make sure you can connect to the SQL Server. Then run:
 
 ```
-DatalogConvert PCname\SQLinstance master user password
+sql2dat PCname\SQLinstance master user password
 ```
 
 If you have non-default table names:
 
 ```
-DatalogConvert PCname\SQLinstance master user password FloatTableName TagTableName StringTableName
+sql2dat PCname\SQLinstance master user password FloatTableName TagTableName StringTableName
 ```
 
 This should generate a bunch of daily DAT files like this:
@@ -29,3 +31,33 @@ This should generate a bunch of daily DAT files like this:
 Place the DAT files into your HMI Projects\AppName\DLGLOG\DatalogName. Make sure you switch the datalog storage format from ODBC to File Set so it starts reading the DAT files. Even that is not enough; in my tests, the trend was still reading **both** the SQL and file sets. If you don't want that, change the ODBC settings so the SQL server is no longer accessible (enter a non-existing username or remove the dsn file).
 
 If the trend still doesn't see the data generated this way, look into the DLG file. It contains start/stop timestamps and limits access to files outside that range. My guess is you can simply delete it.
+
+### dat2sql
+
+You guessed it.
+
+```
+dat2sql PCname\SQLinstance master user password [TablePrefix]
+```
+
+The input is all files in current directory matched with `* (Float).DAT`
+
+### dat2fth
+
+Creates a CSV data file to import data into FactoryTalk Historian.
+
+```
+dat2fth [wildcard]
+```
+
+If no wildcard is specified, it's assumed to be `* (Float).DAT`
+
+Actual import is described in "PI Data Archive 2017 R2 System Management Guide" p.114 but the TLDR is:
+
+1. Create all the tags first
+2. Force an archive shift in SMT
+3. Run script
+
+```
+piconfig.exe < out.csv
+```
