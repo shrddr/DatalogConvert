@@ -66,7 +66,6 @@ namespace dat2sql
             {
                 Console.WriteLine("Error: argument not found");
                 Console.WriteLine("Usage: dat2sql ServerName CatalogName User Password [TablePrefix]");
-                Console.ReadLine();
                 return;
             }
 
@@ -97,10 +96,7 @@ namespace dat2sql
 
             conn.Close();
             Console.WriteLine("converted {0} files", converted);
-            Console.ReadLine();
         }
-
-        
 
         public static void MakeSQL(string float_filename, SqlConnection conn, string TagTable, string FloatTable)
         {

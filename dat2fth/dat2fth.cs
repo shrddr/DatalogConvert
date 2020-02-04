@@ -14,15 +14,24 @@ namespace dat2fth
     {
         static void Main(string[] args)
         {
-            string wildcard = "* (Float).DAT";
+            if (args.Length < 1)
+            {
+                Console.WriteLine("Error: argument not found");
+                Console.WriteLine("Usage: dat2fth PointPrefix [InputPattern]");
+                return;
+            }
+            string tagname_prefix = args[0];
+
+            string pattern = "./* (Float).DAT";
             if (args.Length > 1)
             {
-                wildcard = args[1];
+                pattern = args[1];
             }
 
-            string tagname_prefix = "ocm:cptu:";
-
-            string[] files = Directory.GetFiles(".", wildcard);
+            string wildcard = Path.GetFileName(pattern);
+            string relPath = pattern.Substring(0, pattern.Length - wildcard.Length);
+            string fullPath = Path.GetFullPath(relPath);
+            string[] files = Directory.GetFiles(fullPath, wildcard); // can lazy EnumerateFiles instead
             int converted = 0;
 
             using (StreamWriter outwriter = new StreamWriter(File.Open("out.csv", FileMode.Create)))
@@ -32,13 +41,12 @@ namespace dat2fth
                 outwriter.Write("@istr tag, time, value\n");
                 foreach (var infilename in files)
                 {
-                    Console.WriteLine("converting {0}", infilename);
+                    Console.WriteLine("converting {0}", Path.GetFileName(infilename));
                     MakeFTH(infilename, outwriter, tagname_prefix);
                     converted++;
                 }
             }
             Console.WriteLine("converted {0} files", converted);
-            Console.ReadLine();
         }
 
 

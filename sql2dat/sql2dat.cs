@@ -249,20 +249,24 @@ namespace sql2dat
             if (args.Length < 4)
             {
                 Console.WriteLine("Error: argument not found");
-                Console.WriteLine("Usage: sql2dat ServerName CatalogName User Password [FloatTable] [TagTable] [StringTable]");
-                Console.ReadLine();
+                Console.WriteLine("Usage: sql2dat ServerName CatalogName User Password [TablePrefix]");
                 return;
             }
 
-            string FloatTable = args.Length > 4 ? args[4] : "FloatTable";
-            string TagTable = args.Length > 5 ? args[5] : "TagTable";
-            string StringTable = args.Length > 6 ? args[6] : "StringTable";
+            string FloatTable = "FloatTable";
+            string TagTable = "TagTable";
+            string StringTable = "StringTable";
+            if (args.Length > 4)
+            {
+                FloatTable = $"{args[4]}_FloatTable";
+                TagTable = $"{args[4]}_TagTable";
+                StringTable = $"{args[4]}_StringTable";
+            }
 
             string connString = $"Data Source={args[0]};Initial Catalog={args[1]};Persist Security Info=True;User ID={args[2]};Password={args[3]}";
             MakeDatFiles(connString, FloatTable, TagTable, StringTable);
 
             Console.WriteLine("Press any key to exit...");
-            Console.ReadLine();
         }
 
         public static void MakeDatFiles(string connString, string TablePrefix)
