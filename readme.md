@@ -44,24 +44,27 @@ Existing SQL tables will be dropped and recreated.
 
 ### dat2fth
 
-Creates a CSV data file to import the file-based datalog into FactoryTalk Historian.
+Creates a CSV data file to import the file-based datalog into FactoryTalk Historian. This process is also referred to as *backfill* in Historian docs.
 
 ```
 dat2fth PointPrefix [InputPattern]
 ```
 
-`PointPrefix` refers to your Historian point names. If you create these using auto-discovery they are all going to start with `ViewAppName:HmiServerName:`. The auto-discovery also replaces `/` with `.` in tag names, so does this script.
+`PointPrefix` refers to your Historian point names. If you create these using Historian auto-discovery they are all going to start with `ViewAppName:HmiServerName:` - might be a good idea to mimic that for consistency. The script also replaces `/` with `.` in tag names, just like auto-discovery.
 
 `InputPattern` is the path to input files with filename wildcard. You can use the wildcard to filter the input by day or by month: `path/to/datalog/2019 12 * (Float).DAT`. If no `InputPattern` is specified, it's assumed to be `./* (Float).DAT`
 
-Actual import is described in "PI Data Archive 2017 R2 System Management Guide" p.114 but the TLDR is:
+The actual import process is described in "PI Data Archive 2017 R2 System Management Guide" p.114 but the TLDR is:
 
-1. Create all the Historian points manually
-2. Force an archive shift in SMT
-3. Run script
+1. Create all the Historian points that will be used in the import
 
-```
-piconfig.exe < out.csv
-```
+   - FactoryTalk Administration Console - right click the application - Add/Discover Historian points, OR
+   - use generated script `piconfig.exe < add_points.csv` 
 
-The import is quite slow, for large datalogs you should probably try PI connectors instead. Also the CSV is almost twice the size of input DAT files so the storage might be an issue too.
+   In any case, the span values will default to 0-100 for every point. You might want to review that because it affects value compression.
+
+2. Create a new archive, or force an archive shift in SMT.
+
+3. Import values: `piconfig.exe < values.csv`
+
+Keep in mind that `piconfig`-based backfill is *extremely* slow (10-15 MB of DAT files *per hour*). If you have a large datalog you should probably try "PI interfaces" instead (UFL? DAT -> dat2sql -> RDBMS?). These however are not included in Historian installation media; the knowledgebase says you need to order them separately through Information Software Regional Manager (?!).

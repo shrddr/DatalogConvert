@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dat2sql", "dat2sql\dat2sql.csproj", "{28B20098-03E6-4887-AA32-F597AA016855}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dat2fth", "dat2fth\dat2fth.csproj", "{74F26AB8-6A70-4E9E-859B-4AB7982958B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dat2csv", "dat2csv\dat2csv.csproj", "{74F26AB8-6A70-4E9E-859B-4AB7982958B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

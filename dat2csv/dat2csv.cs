@@ -10,8 +10,19 @@ using System.Threading.Tasks;
 
 namespace dat2fth
 {
+    public static class Globals
+    {
+        public const int BATCH_SIZE = 1000;
+        public static string POINT_PREFIX = "";
+    }
+
     class Program
     {
+        static string TagToPoint(string tagname)
+        {
+            return Globals.POINT_PREFIX + tagname.Replace('\\', '.');
+        }
+
         static void Main(string[] args)
         {
             if (args.Length < 1)
@@ -20,7 +31,7 @@ namespace dat2fth
                 Console.WriteLine("Usage: dat2fth PointPrefix [InputPattern]");
                 return;
             }
-            string tagname_prefix = args[0];
+            Globals.POINT_PREFIX = args[0];
 
             string pattern = "./* (Float).DAT";
             if (args.Length > 1)
@@ -34,29 +45,52 @@ namespace dat2fth
             string[] files = Directory.GetFiles(fullPath, wildcard); // can lazy EnumerateFiles instead
             int converted = 0;
 
-            using (StreamWriter outwriter = new StreamWriter(File.Open("out.csv", FileMode.Create)))
+            List<string> tagnames = new List<string>();
+            using (StreamWriter val_writer = new StreamWriter(File.Open("values.csv", FileMode.Create)))
             {
-                outwriter.Write("@mode edit, t\n");
-                outwriter.Write("@table pisnap\n");
-                outwriter.Write("@istr tag, time, value\n");
+                val_writer.Write("@mode edit, t\n");
+                val_writer.Write("@table pisnap\n");
+                val_writer.Write("@istr tag, time, value\n");
                 foreach (var infilename in files)
                 {
                     Console.WriteLine("converting {0}", Path.GetFileName(infilename));
-                    MakeFTH(infilename, outwriter, tagname_prefix);
+                    MakeFTH(infilename, val_writer, tagnames);
                     converted++;
                 }
             }
             Console.WriteLine("converted {0} files", converted);
+
+            using (StreamWriter pts_writer = new StreamWriter(File.Open("del_points.csv", FileMode.Create)))
+            {
+                pts_writer.Write("@tabl pipoint,classic\n");
+                pts_writer.Write("@mode delete\n");
+                pts_writer.Write("@istr tag\n");
+                foreach (var tagname in tagnames)
+                {
+                    pts_writer.Write($"{TagToPoint(tagname)}\n");
+                }
+            }
+            using (StreamWriter pts_writer = new StreamWriter(File.Open("add_points.csv", FileMode.Create)))
+            {
+                    pts_writer.Write("@tabl pipoint,classic\n");
+                pts_writer.Write("@mode create\n");
+                pts_writer.Write("@istr tag,pointsource,location1,location3,location4,span,zero,instrumenttag\n");
+                foreach (var tagname in tagnames)
+                {
+                    pts_writer.Write($"{TagToPoint(tagname)},FTLD,1,1,1,100.,0.,{tagname}\n");
+                }
+            }
+            Console.WriteLine("created {0} point definitions", tagnames.Count);
         }
 
 
-        public static void MakeFTH(string float_filename, StreamWriter outwriter, string tagname_prefix)
+        public static void MakeFTH(string floatfile_name, StreamWriter outwriter, List<string> all_tagnames)
         {
-            Dictionary<int, string> tagnames = new Dictionary<int, string>();
+            Dictionary<int, string> pointnames = new Dictionary<int, string>();
             try
             {
-                string tagname_filename = float_filename.Replace(" (Float)", " (Tagname)");
-                BinaryReader br = new BinaryReader(File.Open(tagname_filename, FileMode.Open));
+                string tagname_filename = floatfile_name.Replace(" (Float)", " (Tagname)");
+                BinaryReader br = new BinaryReader(File.Open(tagname_filename, FileMode.Open, FileAccess.Read, FileShare.Read));
                 byte ver = br.ReadByte();
                 int yy = br.ReadByte() + 1900;
                 byte mm = br.ReadByte();
@@ -72,8 +106,12 @@ namespace dat2fth
                     int tagid = int.Parse(new string(br.ReadChars(5)));
                     int tagtype = int.Parse(new string(br.ReadChars(1)));
                     int tagdtype = int.Parse(new string(br.ReadChars(2)));
-                    tagname = tagname_prefix + tagname.Replace('\\', '.');
-                    tagnames[tagid] = tagname;
+                    pointnames[tagid] = TagToPoint(tagname);
+
+                    if (!all_tagnames.Contains(tagname))
+                    {
+                        all_tagnames.Add(tagname);
+                    }
                 }
                 br.BaseStream.Close();
             }
@@ -84,7 +122,7 @@ namespace dat2fth
 
             try
             {
-                BinaryReader br = new BinaryReader(File.Open(float_filename, FileMode.Open));
+                BinaryReader br = new BinaryReader(File.Open(floatfile_name, FileMode.Open, FileAccess.Read, FileShare.Read));
                 byte ver = br.ReadByte();
                 int yy = br.ReadByte() + 1900;
                 byte mm = br.ReadByte();
@@ -94,7 +132,6 @@ namespace dat2fth
 
                 br.BaseStream.Seek(0x121, SeekOrigin.Begin);
 
-                int BATCH_SIZE = 1000;
                 int batch_len = 0;
                 string batch = "";
 
@@ -106,6 +143,7 @@ namespace dat2fth
                     char[] time = br.ReadChars(16);
                     DateTime datetime = DateTime.ParseExact(new string(time), "yyyyMMddHH:mm:ss", CultureInfo.InvariantCulture);
                     Int16 milli = Int16.Parse(new string(br.ReadChars(3)));
+                    datetime = datetime.AddMilliseconds(milli);
                     Int16 tagid = Int16.Parse(new string(br.ReadChars(5)));
                     double val = br.ReadDouble();
                     char status = br.ReadChar();
@@ -113,11 +151,13 @@ namespace dat2fth
                     br.BaseStream.Seek(4, SeekOrigin.Current);
 
                     batch_len++;
-                    // A1HV074B,08-Aug-01 11:00:00,3659
-                    // Historian doesn't want the milliseconds? WTF
-                    // TODO: probably discard some of the values based on STATUS field
-                    batch += $"{tagnames[tagid]},{datetime.ToString("dd-MMM-yy HH:mm:ss", culture)},{val}\n";
-                    if (batch_len == BATCH_SIZE)
+                    if (status != 'U')
+                    {
+                        // A1HV074B,08-Aug-01 11:00:00,3659
+                        // Historian doesn't want the milliseconds? WTF
+                        batch += $"{pointnames[tagid]},{datetime.ToString("dd-MMM-yy HH:mm:ss.fff", culture)},{val}\n";
+                    }
+                    if (batch_len == Globals.BATCH_SIZE)
                     {
                         outwriter.Write(batch); // async?
                         batch_len = 0;
