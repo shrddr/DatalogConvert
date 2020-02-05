@@ -42,7 +42,7 @@ The `(Tagname)` files are assumed to be in the same directory.
 
 Existing SQL tables will be dropped and recreated.
 
-### dat2fth
+### dat2csv
 
 Creates a CSV data file to import the file-based datalog into FactoryTalk Historian. This process is also referred to as *backfill* in Historian docs.
 
