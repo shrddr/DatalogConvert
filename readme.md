@@ -59,7 +59,7 @@ The actual import process is described in "PI Data Archive 2017 R2 System Manage
 1. Create all the Historian points that will be used in the import
 
    - FactoryTalk Administration Console - right click the application - Add/Discover Historian points, OR
-   - use generated script `piconfig.exe < add_points.csv` 
+   - use generated script `piconfig.exe < add_points.csv` . The descriptions will be empty though.
 
    In any case, the span values will default to 0-100 for every point. You might want to review that because it affects value compression.
 
@@ -68,3 +68,23 @@ The actual import process is described in "PI Data Archive 2017 R2 System Manage
 3. Import values: `piconfig.exe < values.csv`
 
 Keep in mind that `piconfig`-based backfill is *extremely* slow (10-15 MB of DAT files *per hour*). If you have a large datalog you should probably try "PI interfaces" instead (UFL? DAT -> dat2sql -> RDBMS?). These however are not included in Historian installation media; the knowledgebase says you need to order them separately through Information Software Regional Manager (?!).
+
+### dat2fth
+
+Work In Progress!
+
+#### Requirements
+
+If you are doing the import from remote node:
+
+- The only thing you need to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`
+- Add write permissions (piadmin user works) to remote IP address (SMT > Security > Mappings & Trusts).
+  - You can also limit by process name. But it's going to be a somewhat trimmed version of what you put in `piut_setprocname` . Check in SMT > Operation > Message Logs.
+
+#### Usage
+
+```
+dat2fth PCname pointname
+```
+
+ Currently just puts a value of 666 with current timestamp into a specified point on a specified server.
