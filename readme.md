@@ -47,12 +47,12 @@ Existing SQL tables will be dropped and recreated.
 Creates a CSV data file to import the file-based datalog into FactoryTalk Historian. This process is also referred to as *backfill* in Historian docs.
 
 ```
-dat2fth PointPrefix [InputPattern]
+dat2fth PointPrefix [InputPath]
 ```
 
 `PointPrefix` refers to your Historian point names. If you create these using Historian auto-discovery they are all going to start with `ViewAppName:HmiServerName:` - might be a good idea to mimic that for consistency. The script also replaces `/` with `.` in tag names, just like auto-discovery.
 
-`InputPattern` is the path to input files with filename wildcard. You can use the wildcard to filter the input by day or by month: `path/to/datalog/2019 12 * (Float).DAT`. If no `InputPattern` is specified, it's assumed to be `./* (Float).DAT`
+Specify `InputPath` if the DAT files are not in current directory.
 
 The actual import process is described in "PI Data Archive 2017 R2 System Management Guide" p.114 but the TLDR is:
 

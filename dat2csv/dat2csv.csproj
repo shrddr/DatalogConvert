@@ -49,5 +49,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libDAT\libDAT.csproj">
+      <Project>{3D34F477-2950-498D-B1F4-EDB1AF7EAC88}</Project>
+      <Name>libDAT</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

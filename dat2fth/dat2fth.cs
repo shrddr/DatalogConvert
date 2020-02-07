@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace dat2fth
 {
-    class Program
+    class dat2fth
     {
         public struct PITIMESTAMP
         {

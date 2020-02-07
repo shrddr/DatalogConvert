@@ -53,11 +53,16 @@
   <ItemGroup>
     <Compile Include="test_sql2dat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="test_lib.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\libDAT\libDAT.csproj">
+      <Project>{3d34f477-2950-498d-b1f4-edb1af7eac88}</Project>
+      <Name>libDAT</Name>
+    </ProjectReference>
     <ProjectReference Include="..\sql2dat\sql2dat.csproj">
       <Project>{a40ee740-030d-48c4-b607-fd3cd231f924}</Project>
       <Name>sql2dat</Name>
