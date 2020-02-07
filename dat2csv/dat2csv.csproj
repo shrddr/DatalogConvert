@@ -54,6 +54,10 @@
       <Project>{3D34F477-2950-498D-B1F4-EDB1AF7EAC88}</Project>
       <Name>libDAT</Name>
     </ProjectReference>
+    <ProjectReference Include="..\libFTH\libFTH.csproj">
+      <Project>{509F5459-F512-47F4-B7B5-EA1570FC2E83}</Project>
+      <Name>libFTH</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

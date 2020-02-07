@@ -1,4 +1,5 @@
 ﻿using libDAT;
+using libFTH;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -14,16 +15,10 @@ namespace dat2fth
     public static class Globals
     {
         public const int BATCH_SIZE = 1000;
-        public static string POINT_PREFIX = "";
     }
 
     class Program
     {
-        static string TagToPoint(string tagname)
-        {
-            return Globals.POINT_PREFIX + tagname.Replace('\\', '.');
-        }
-
         static void Main(string[] args)
         {
             if (args.Length < 1)
@@ -32,7 +27,7 @@ namespace dat2fth
                 Console.WriteLine("Usage: dat2fth PointPrefix [path]");
                 return;
             }
-            Globals.POINT_PREFIX = args[0];
+            PIAPI.POINT_PREFIX = args[0];
 
             string path = ".";
             if (args.Length >= 2)
@@ -40,7 +35,7 @@ namespace dat2fth
                 path = args[1];
             }
 
-            DatReader dr = new DatReader(".");
+            DatReader dr = new DatReader(path);
             uint converted = 0;
 
             List<string> tagnames = new List<string>();
@@ -66,7 +61,7 @@ namespace dat2fth
                 pts_writer.Write("@istr tag\n");
                 foreach (var tagname in tagnames)
                 {
-                    pts_writer.Write($"{TagToPoint(tagname)}\n");
+                    pts_writer.Write($"{PIAPI.TagToPoint(tagname)}\n");
                 }
             }
             using (StreamWriter pts_writer = new StreamWriter(File.Open("add_points.csv", FileMode.Create)))
@@ -76,7 +71,7 @@ namespace dat2fth
                 pts_writer.Write("@istr tag,pointsource,location1,location3,location4,span,zero,instrumenttag\n");
                 foreach (var tagname in tagnames)
                 {
-                    pts_writer.Write($"{TagToPoint(tagname)},FTLD,1,1,1,100.,0.,{tagname}\n");
+                    pts_writer.Write($"{PIAPI.TagToPoint(tagname)},FTLD,1,1,1,100.,0.,{tagname}\n");
                 }
             }
             Console.WriteLine("created {0} point definitions", tagnames.Count);
@@ -89,7 +84,7 @@ namespace dat2fth
 
             foreach (DatTagRecord tag in dr.ReadTagFile(floatfile_name))
             {
-                pointnames[tag.id] = TagToPoint(tag.name);
+                pointnames[tag.id] = PIAPI.TagToPoint(tag.name);
                 if (!all_tagnames.Contains(tag.name))
                 {
                     all_tagnames.Add(tag.name);

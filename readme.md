@@ -71,20 +71,16 @@ Keep in mind that `piconfig`-based backfill is *extremely* slow (10-15 MB of DAT
 
 ### dat2fth
 
-Work In Progress!
-
 #### Requirements
 
-If you are doing the import from remote node:
+I'm doing the import from a clean remote node and the only thing I had to install is PI API, located at `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`.
 
-- The only thing you need to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`
-- Add write permissions (piadmin user works) to remote IP address (SMT > Security > Mappings & Trusts).
-  - You can also limit by process name. But it's going to be a somewhat trimmed version of what you put in `piut_setprocname` . Check in SMT > Operation > Message Logs.
+Don't forget to add write permissions (assign `piadmin` user) to remote IP address (SMT > Security > Mappings & Trusts). You can also limit access by process name `dat2E`. It's whatever you put into ` piut_setprocname ` trimmed to 4 chars plus the `E` symbol (ethernet?). If the connection is not successful check SMT > Operation > Message Logs.
 
 #### Usage
 
 ```
-dat2fth PCname pointname
+dat2fth ServerName PointPrefix [Path]
 ```
 
- Currently just puts a value of 666 with current timestamp into a specified point on a specified server.
+Reads all  `* (Float).DAT` files in `Path`. Pushes the values onto a FactoryTalk Historian server located at  `ServerName`, using point names `(PointPrefix+Tagname).replace('/' -> '.')`  .
