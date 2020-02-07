@@ -83,4 +83,4 @@ Don't forget to add write permissions (assign `piadmin` user) to remote IP addre
 dat2fth ServerName PointPrefix [Path]
 ```
 
-Reads all  `* (Float).DAT` files in `Path`. Pushes the values onto a FactoryTalk Historian server located at  `ServerName`, using point names `(PointPrefix+Tagname).replace('/' -> '.')`  .
+Reads all  `* (Float).DAT` files in `Path`. Pushes the values onto a FactoryTalk Historian server located at  `ServerName`. The points must be created beforehand. The points are addressed by `PointName = PointPrefix + TagName.replace('/' -> '.')`
