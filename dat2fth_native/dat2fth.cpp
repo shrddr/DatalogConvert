@@ -46,13 +46,20 @@ int main(int argc, char **argv)
 		return err;
 	}
 
-	err = pisn_putsnapshot(point.id, 666, 0, 0);
+	float64 drval = 666;
+	int32 istat = 0;
+	int16 flags = 0;
+	PITIMESTAMP ts;
+	pitm_settime(&ts, 2020, 2, 7, 10, 27, 33.333);
+
+	// ptnum,drval,ival,bval,bsize,istat,flags,timestamp
+	err = pisn_putsnapshotx(point.id, &drval, NULL, NULL, NULL, &istat, &flags, &ts);
 	if (err)
 	{
-		printf("pisn_putsnapshot %ld\n", err);
+		printf("pisn_putsnapshotx %ld\n", err);
 		return err;
 	}
-
+	
 	piut_disconnect();
 	printf("Success");
 	return 0;
