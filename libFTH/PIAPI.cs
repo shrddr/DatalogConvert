@@ -29,6 +29,13 @@ namespace libFTH
         }
     }
 
+    public struct FloatSnapshot
+    {
+        public int ptid;
+        public double val;
+        public DateTime dt;
+    }
+
     public class PIAPI
     {
         public static string POINT_PREFIX = "";
@@ -49,7 +56,7 @@ namespace libFTH
         [DllImport(PIAPIDLL)]
         static extern Int32 pisn_putsnapshotsx(Int32 count, Int32[] ptnum, double[] drval, Int32[] ival, byte[,] bval,
                                                UInt32[] bsize, Int32[] istat, Int16[] flags, PITIMESTAMP[] timestamp,
-                                               out Int32[] errors);
+                                               Int32[] errors);
 
         public static bool Connect(string serverName)
         {
@@ -89,6 +96,23 @@ namespace libFTH
             if (err != 0)
             {
                 throw new Exception($"pisn_putsnapshotx: {err}");
+            }
+            return true;
+        }
+
+        public static bool PutSnapshots(Int32 count, Int32[] ptids, double[] vs, PITIMESTAMP[] ts)
+        {
+            Int32[] ivals = new Int32[count];
+            UInt32[] bsizes = new UInt32[count];
+            Int32[] istats = new Int32[count];
+            Int16[] flags = new Int16[count];
+
+            Int32[] errors = new Int32[count];
+
+            Int32 err = pisn_putsnapshotsx(count, ptids, vs, ivals, null, bsizes, istats, flags, ts, errors);
+            if (err != 0)
+            {
+                throw new Exception($"pisn_putsnapshotsx: {err}");
             }
             return true;
         }

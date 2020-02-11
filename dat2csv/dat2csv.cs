@@ -97,10 +97,10 @@ namespace dat2fth
 
             foreach (DatFloatRecord val in dr.ReadFloatFile(floatfile_name))
             {
-                batch_count++;
                 if (val.status != 'U')
                 {
                     batch += $"{pointnames[val.tagid]},{val.datetime.ToString("dd-MMM-yy HH:mm:ss.fff", culture)},{val.val}\n";
+                    batch_count++;
                 }
                 if (batch_count == Globals.BATCH_SIZE)
                 {

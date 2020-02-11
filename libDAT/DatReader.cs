@@ -60,6 +60,7 @@ namespace libDAT
             //string relPath = pattern.Substring(0, pattern.Length - wildcard.Length);
             //string fullPath = Path.GetFullPath(relPath);
             //floatfile_names = Directory.GetFiles(fullPath, wildcard);
+            path = path.Replace("\"", "");
             floatfile_names = Directory.GetFiles(path, "* (Float).DAT");
 
             if (floatfile_names.Length < 1)

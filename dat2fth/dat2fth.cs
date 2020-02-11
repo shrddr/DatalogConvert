@@ -10,6 +10,11 @@ using libFTH;
 
 namespace dat2fth
 {
+    public static class Globals
+    {
+        public const int BATCH_SIZE = 1000;
+    }
+
     class dat2fth
     {
         static void Main(string[] args)
@@ -29,10 +34,6 @@ namespace dat2fth
                 path = args[2];
             }
             
-            /*Int32 ptid = PIAPI.GetPointNumber(args[1]);
-            Console.WriteLine(ptid);
-            PIAPI.PutSnapshot(ptid, 666);*/
-
             DatReader dr = new DatReader(path);
             foreach (string floatfile_name in dr.GetFloatfiles())
             {
@@ -43,10 +44,32 @@ namespace dat2fth
                     string pointname = PIAPI.TagToPoint(tag.name);
                     pointids[tag.id] = PIAPI.GetPointNumber(pointname);
                 }
+
+                int batch_count = 0;
+                Int32[] ptids = new Int32[Globals.BATCH_SIZE];
+                double[] vs = new double[Globals.BATCH_SIZE];
+                PITIMESTAMP[] ts = new PITIMESTAMP[Globals.BATCH_SIZE];
+
+                // can use intermediate storage, more readable but less speed
+                // List<FloatSnapshot> snaps = new List<FloatSnapshot>();
+
                 foreach (DatFloatRecord val in dr.ReadFloatFile(floatfile_name))
                 {
                     Int32 ptid = pointids[val.tagid];
-                    PIAPI.PutSnapshot(ptid, val.val, val.datetime);
+                    ptids[batch_count] = ptid;
+                    vs[batch_count] = val.val;
+                    ts[batch_count] = new PITIMESTAMP(val.datetime);
+                    batch_count++;
+
+                    if (batch_count == Globals.BATCH_SIZE)
+                    {
+                        PIAPI.PutSnapshots(batch_count, ptids, vs, ts);
+                        batch_count = 0;
+                    }
+                }
+                if (batch_count > 0)
+                {
+                    PIAPI.PutSnapshots(batch_count, ptids, vs, ts);
                 }
             }
         }

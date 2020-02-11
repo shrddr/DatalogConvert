@@ -67,15 +67,19 @@ The actual import process is described in "PI Data Archive 2017 R2 System Manage
 
 3. Import values: `piconfig.exe < values.csv`
 
-Keep in mind that `piconfig`-based backfill is *extremely* slow (10-15 MB of DAT files *per hour*). If you have a large datalog you should probably try "PI interfaces" instead (UFL? DAT -> dat2sql -> RDBMS?). These however are not included in Historian installation media; the knowledgebase says you need to order them separately through Information Software Regional Manager (?!).
+Keep in mind that `piconfig`-based backfill is *extremely* slow (10-15 MB of DAT files *per hour*). If you have a large datalog look below for a faster method.
 
 ### dat2fth
+
+This script imports up to 16GB/hour by using low level C API.
 
 #### Requirements
 
 I'm doing the import from a clean remote node and the only thing I had to install is PI API, located at `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`.
 
 Don't forget to add write permissions (assign `piadmin` user) to remote IP address (SMT > Security > Mappings & Trusts). You can also limit access by process name `dat2E`. It's whatever you put into ` piut_setprocname ` trimmed to 4 chars plus the `E` symbol (ethernet?). If the connection is not successful check SMT > Operation > Message Logs.
+
+You still have to create all Historian points before the import.
 
 #### Usage
 
@@ -84,3 +88,4 @@ dat2fth ServerName PointPrefix [Path]
 ```
 
 Reads all  `* (Float).DAT` files in `Path`. Pushes the values onto a FactoryTalk Historian server located at  `ServerName`, using point names `(PointPrefix+Tagname).replace('/' -> '.')`  .
+
