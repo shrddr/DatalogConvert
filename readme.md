@@ -75,7 +75,7 @@ This script imports up to 16GB/hour by using low level C API.
 
 #### Requirements
 
-I'm doing the import from a clean remote node and the only thing I had to install is PI API, located at `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`.
+I'm doing the import from a clean remote node and the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. Locally it's installed by default with the server. 
 
 Don't forget to add write permissions (assign `piadmin` user) to remote IP address (SMT > Security > Mappings & Trusts). You can also limit access by process name `dat2E`. It's whatever you put into ` piut_setprocname ` trimmed to 4 chars plus the `E` symbol (ethernet?). If the connection is not successful check SMT > Operation > Message Logs.
 
