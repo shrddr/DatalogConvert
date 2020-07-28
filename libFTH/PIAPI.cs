@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace libFTH
 {
-    public struct PITIMESTAMP
+    public struct PITIMESTAMP : IFormattable
     {
         public int month;
         public int year;
@@ -26,6 +26,11 @@ namespace libFTH
             minute = dt.Minute;
             second = dt.Second + dt.Millisecond / 1000;
             tzinfo = 0;
+        }
+
+        public string ToString(string format, IFormatProvider provider)
+        {
+            return String.Concat($"{hour}:{minute}:{second}");
         }
     }
 
@@ -112,7 +117,17 @@ namespace libFTH
             Int32 err = pisn_putsnapshotsx(count, ptids, vs, ivals, null, bsizes, istats, flags, ts, errors);
             if (err != 0)
             {
-                throw new Exception($"pisn_putsnapshotsx: {err}");
+                int arr_item = 0;
+                int arr_err = 0;
+                for (int i = 0; i < count; i++)
+                {
+                    if (errors[i] != 0)
+                    {
+                        arr_item = i;
+                        arr_err = errors[i];
+                    }
+                }
+                throw new Exception($"pisn_putsnapshotsx: {err}, item {arr_item}, ts {ts[arr_item]}, err {arr_err}");
             }
             return true;
         }

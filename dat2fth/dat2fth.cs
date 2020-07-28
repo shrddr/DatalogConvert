@@ -33,7 +33,11 @@ namespace dat2fth
             {
                 path = args[2];
             }
-            
+
+            // TODO: expose this for easy filtering
+            List<string> allowed_tagnames = new List<string>();
+            //allowed_tagnames.Add("AI\\FY59_1");
+
             DatReader dr = new DatReader(path);
             foreach (string floatfile_name in dr.GetFloatfiles())
             {
@@ -41,6 +45,9 @@ namespace dat2fth
                 Dictionary<int, int> pointids = new Dictionary<int, int>();
                 foreach (DatTagRecord tag in dr.ReadTagFile(floatfile_name))
                 {
+                    if (allowed_tagnames.Count > 0 && !allowed_tagnames.Contains(tag.name))
+                        continue;
+                    
                     string pointname = PIAPI.TagToPoint(tag.name);
                     pointids[tag.id] = PIAPI.GetPointNumber(pointname);
                 }
@@ -55,6 +62,8 @@ namespace dat2fth
 
                 foreach (DatFloatRecord val in dr.ReadFloatFile(floatfile_name))
                 {
+                    if (!pointids.ContainsKey(val.tagid))
+                        continue;
                     Int32 ptid = pointids[val.tagid];
                     ptids[batch_count] = ptid;
                     vs[batch_count] = val.val;

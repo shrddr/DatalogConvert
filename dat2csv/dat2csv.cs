@@ -68,10 +68,10 @@ namespace dat2fth
             {
                 pts_writer.Write("@tabl pipoint,classic\n");
                 pts_writer.Write("@mode create\n");
-                pts_writer.Write("@istr tag,pointsource,location1,location3,location4,span,zero,instrumenttag\n");
+                pts_writer.Write("@istr tag,pointsource,location1,location3,location4,zero,span,instrumenttag,compdev\n");
                 foreach (var tagname in tagnames)
                 {
-                    pts_writer.Write($"{PIAPI.TagToPoint(tagname)},FTLD,1,1,1,100.,0.,{tagname}\n");
+                    pts_writer.Write($"{PIAPI.TagToPoint(tagname)},FTLD,1,1,1,0.,100.,{tagname},0.2\n");
                 }
             }
             Console.WriteLine("created {0} point definitions", tagnames.Count);

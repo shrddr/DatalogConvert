@@ -61,7 +61,7 @@ The actual import process is described in "PI Data Archive 2017 R2 System Manage
    - FactoryTalk Administration Console - right click the application - Add/Discover Historian points, OR
    - use generated script `piconfig.exe < add_points.csv` . The descriptions will be empty though.
 
-   In any case, the span values will default to 0-100 for every point. You might want to review that because it affects value compression.
+   In any case, the span values will default to 0-100 for every point, and the compression deviation to 0.2 eng.units. You might want to review these settings to achieve good value compression.
 
 2. Create a new archive, or force an archive shift in SMT.
 
@@ -71,15 +71,15 @@ Keep in mind that `piconfig`-based backfill is *extremely* slow (10-15 MB of DAT
 
 ### dat2fth
 
-This script imports up to 16GB/hour by using low level C API.
+This script imports up to 16GB of raw DAT files per hour by using low level C API.
 
 #### Requirements
 
-I'm doing the import from a clean remote node and the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. Locally it's installed by default with the server. 
+I'm doing the import from a clean remote node and the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. On the server node it should be installed by default. 
 
 Don't forget to add write permissions (assign `piadmin` user) to remote IP address (SMT > Security > Mappings & Trusts). You can also limit access by process name `dat2E`. It's whatever you put into ` piut_setprocname ` trimmed to 4 chars plus the `E` symbol (ethernet?). If the connection is not successful check SMT > Operation > Message Logs.
 
-You still have to create all Historian points before the import.
+You still have to create all Historian points before the import. If you use a fresh archive, stop incoming real-time data collection, and specify reasonable compression options (`CompDev`) for each point, the imported data should be compressed on the fly.
 
 #### Usage
 
