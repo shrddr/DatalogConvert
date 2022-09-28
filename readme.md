@@ -47,7 +47,7 @@ Existing SQL tables will be dropped and recreated.
 Creates a CSV data file to import the file-based datalog into FactoryTalk Historian. This process is also referred to as *backfill* in Historian docs.
 
 ```
-dat2fth PointPrefix [InputPath]
+dat2csv PointPrefix [InputPath]
 ```
 
 `PointPrefix` refers to your Historian point names. If you create these using Historian auto-discovery they are all going to start with `ViewAppName:HmiServerName:` - might be a good idea to mimic that for consistency. The script also replaces `/` with `.` in tag names, just like auto-discovery.
