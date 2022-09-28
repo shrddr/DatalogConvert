@@ -24,7 +24,7 @@ The output is a bunch of daily DAT files like this:
 2018 10 30 0000 (Tagname).DAT
 ```
 
-Place the DAT files into your HMI Projects\AppName\DLGLOG\DatalogName. Make sure you switch the datalog storage format from ODBC to File Set so it starts reading the DAT files. Even that is not enough; in my tests, the trend was still reading **both** the SQL and file sets. If you don't want that, change the ODBC settings so the SQL server is no longer accessible (enter a non-existing username or remove the dsn file).
+Place the DAT files into your HMI Projects\AppName\DLGLOG\DatalogName. Make sure you switch the datalog storage format from ODBC to File Set so it starts reading the DAT files. Even that is not enough; in my tests, the trend was still reading **both** the SQL and file sets. If you don't want that, change the ODBC settings so the SQL server is no longer accessible (enter a non-existing username or remove the .dsn file altogether).
 
 If the trend still doesn't see the data generated this way, look into the DLG file created by FactoryTalk. It contains start/stop timestamps and limits access to files outside that range. I usually just delete it.
 
@@ -61,7 +61,7 @@ The actual import process is described in "PI Data Archive 2017 R2 System Manage
    - FactoryTalk Administration Console - right click the application - Add/Discover Historian points, OR
    - use generated script `piconfig.exe < add_points.csv` . The descriptions will be empty though.
 
-   In any case, the span values will default to 0-100 for every point, and the compression deviation to 0.2 eng.units. You might want to review these settings to achieve good value compression.
+   In any case, the span values will default to 0-100 for every point, and the compression deviation to 0.2 engineering units. You might want to review these settings to achieve good value compression.
 
 2. Create a new archive, or force an archive shift in SMT.
 
@@ -75,11 +75,11 @@ This script imports up to 16GB of raw DAT files per hour by using low level C AP
 
 #### Requirements
 
-I'm doing the import from a clean remote node and the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. On the server node it should be installed by default. 
+Requirements: when running the import from a clean remote node the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. On the server node it should be installed by default. 
 
-Don't forget to add write permissions (assign `piadmin` user) to remote IP address (SMT > Security > Mappings & Trusts). You can also limit access by process name `dat2E`. It's whatever you put into ` piut_setprocname ` trimmed to 4 chars plus the `E` symbol (ethernet?). If the connection is not successful check SMT > Operation > Message Logs.
+Don't forget to add write permissions (assign `piadmin` user) to remote IP address (SMT > Security > Mappings & Trusts). You can also limit access by process name `dat2E` . That is whatever you put into ` piut_setprocname ` trimmed to 4 chars plus the `E` symbol (ethernet?). If the connection is not successful check SMT > Operation > Message Logs.
 
-You still have to create all Historian points before the import. If you use a fresh archive, stop incoming real-time data collection, and specify reasonable compression options (`CompDev`) for each point, the imported data should be compressed on the fly.
+You still have to create all Historian points before the import, described earlier. If you use a fresh archive, stop incoming real-time data collection, and specify reasonable compression options (`CompDev`) for each point, the imported data should be compressed on the fly.
 
 #### Usage
 
@@ -87,5 +87,5 @@ You still have to create all Historian points before the import. If you use a fr
 dat2fth ServerName PointPrefix [Path]
 ```
 
-Reads all  `* (Float).DAT` files in `Path`. Pushes the values onto a FactoryTalk Historian server located at  `ServerName`, using point names `(PointPrefix+Tagname).replace('/' -> '.')`  .
+Reads all  `* (Float).DAT` files in `Path`. Pushes the values onto a FactoryTalk Historian server located at  `ServerName`, using point names `(PointPrefix+Tagname).replace('/' -> '.')` since Historian does not allow slashes in point names.
 
