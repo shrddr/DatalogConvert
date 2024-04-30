@@ -330,7 +330,7 @@ namespace sql2dat
                         List<FloatTableRow> FloatTableRows = new List<FloatTableRow>();
                         var TagData = new Dictionary<Int16, TagInfo>();
 
-                        string sql = $"SELECT * FROM [{FloatTableName}] WHERE DateAndTime > @DT AND DateAndTime < DATEADD(day, 1, @DT) ORDER BY DateAndTime, Millitm";
+                        string sql = $"SELECT * FROM [{FloatTableName}] WHERE DateAndTime >= @DT AND DateAndTime < DATEADD(day, 1, @DT) ORDER BY DateAndTime, Millitm";
                         SqlCommand cmd = new SqlCommand(sql, conn) { CommandTimeout = 600 };
                         cmd.Parameters.AddWithValue("DT", currentDay);
                         SqlDataReader reader = cmd.ExecuteReader();
@@ -343,13 +343,14 @@ namespace sql2dat
                             Int16 tagindex = reader.GetInt16(2);
                             double v = reader.GetDouble(3);
                             string str = reader.GetString(4);
-                            char s = str[0];
+                            char s = str.Length > 0 ? str[0] : ' ';
                             str = reader.GetString(5);
-                            char m = str[0];
+                            char m = str.Length > 0 ? str[0] : ' ';
 
                             if (!TagData.ContainsKey(tagindex))
                             {
                                 TagTableRow t = TagTableRows.Find(row => row.index == tagindex);
+                                if (t == null) throw new NotImplementedException($"FloatTable at {dt} references unknown tagindex {tagindex} (not in TagTable)");
                                 // TODO: initialValue can be interpolated nicely between last record of previous day and first value of current day
                                 TagData.Add(t.index, new TagInfo() {
                                     name = t.name,

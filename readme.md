@@ -30,7 +30,7 @@ If the trend still doesn't see the data generated this way, look into the DLG fi
 
 ### dat2sql
 
-You guessed it.
+Reads data from File Set datalog files and inserts into a FactoryTalk MSSQL-based datalog.
 
 ```
 dat2sql PCname\SQLinstance master user password [TablePrefix]
