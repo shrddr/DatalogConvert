@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using libDAT;
 using libFTH;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace dat2fth
 {
@@ -62,6 +63,13 @@ namespace dat2fth
 
                 foreach (DatFloatRecord val in dr.ReadFloatFile(floatfile_name))
                 {
+                    if (!val.IsValid) {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Error parsing date in file '{floatfile_name}'");
+                        Console.ResetColor();
+                        continue;
+                    }
+                        
                     if (!pointids.ContainsKey(val.tagid))
                         continue;
                     Int32 ptid = pointids[val.tagid];
