@@ -1,6 +1,6 @@
-### sql2dat
+## sql2dat
 
-This tool fetches data from FactoryTalk SQL-based datalog and creates File Set datalog files with the same content.
+This tool fetches data from FactoryTalk MSSQL-based datalog and creates File Set datalog files with the same content.
 
 How to use: first make sure you can connect to the SQL Server. Then run:
 
@@ -28,7 +28,7 @@ Place the DAT files into your HMI Projects\AppName\DLGLOG\DatalogName. Make sure
 
 If the trend still doesn't see the data generated this way, look into the DLG file created by FactoryTalk. It contains start/stop timestamps and limits access to files outside that range. I usually just delete it.
 
-### dat2sql
+## dat2sql
 
 Reads data from File Set datalog files and inserts into a FactoryTalk MSSQL-based datalog.
 
@@ -42,7 +42,7 @@ The `(Tagname)` files are assumed to be in the same directory.
 
 Existing SQL tables will be dropped and recreated.
 
-### dat2csv
+## dat2csv
 
 Creates a CSV data file to import the file-based datalog into FactoryTalk Historian. This process is also referred to as *backfill* in Historian docs.
 
@@ -69,17 +69,17 @@ The actual import process is described in "PI Data Archive 2017 R2 System Manage
 
 Keep in mind that `piconfig`-based backfill is *extremely* slow (10-15 MB of DAT files *per hour*). If you have a large datalog look below for a faster method.
 
-### dat2fth
+## dat2fth
 
-This script imports up to 16GB of raw DAT files per hour by using low level C API.
+This script imports up to 16GB of raw DAT files per hour into Historian by using low level C API (piapi.dll).
 
 #### Requirements
 
-Requirements: when running the import from a clean remote node the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. On the server node it should be installed by default. 
+When running the import from a clean remote node the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. If you run the import script directly on historian server machine, it is probably already installed. 
 
 Don't forget to add write permissions (assign `piadmin` user) to remote IP address (SMT > Security > Mappings & Trusts). You can also limit access by process name `dat2E` . That is whatever you put into ` piut_setprocname ` trimmed to 4 chars plus the `E` symbol (ethernet?). If the connection is not successful check SMT > Operation > Message Logs.
 
-You still have to create all Historian points before the import, described earlier. If you use a fresh archive, stop incoming real-time data collection, and specify reasonable compression options (`CompDev`) for each point, the imported data should be compressed on the fly.
+You still have to create all Historian points manually *before starting the import*, as described earlier in `dat2csv`. If you use a fresh archive, stop incoming real-time data collection, and specify reasonable compression options (`CompDev`) for each point, the imported data should be compressed on the fly.
 
 #### Usage
 
