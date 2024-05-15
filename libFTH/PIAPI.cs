@@ -84,7 +84,7 @@ namespace libFTH
             int err = pipt_findpoint(ptName, out pointNumber);
             if (err != 0)
             {
-                throw new Exception($"pipt_findpoint: {err}");
+                throw new Exception($"Error finding tag: {ptName}, pipt_findpoint: {err}");
             }
             return pointNumber;
         }
