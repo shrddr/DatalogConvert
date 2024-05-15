@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.IO;
 using libDAT;
 using libFTH;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace dat2fth
 {
@@ -65,7 +64,7 @@ namespace dat2fth
                 {
                     if (!val.IsValid) {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Error parsing date in file '{floatfile_name}'");
+                        Console.WriteLine($"Error parsing date in '{floatfile_name}', skipping to next file");
                         Console.ResetColor();
                         continue;
                     }

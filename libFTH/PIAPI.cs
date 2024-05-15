@@ -68,23 +68,22 @@ namespace libFTH
             Int32 err = piut_setservernode(serverName);
             if (err != 0)
             {
-                throw new Exception($"piut_setservernode: {err}");
+                throw new Exception($"piut_setservernode returned error {err}");
             }
             return true;
         }
 
         public static Int32 GetPointNumber(string ptName)
         {
-            Int32 pointNumber;
-            int tagNameLength = ptName.Length;
-            if (tagNameLength > 80)
+            if (ptName.Length > 80)
             {
-                throw new Exception("tagName > 80");
+                throw new Exception($"historian point name {ptName} > 80 characters not supported");
             }
+            Int32 pointNumber;
             int err = pipt_findpoint(ptName, out pointNumber);
             if (err != 0)
             {
-                throw new Exception($"Error finding tag: {ptName}, pipt_findpoint: {err}");
+                throw new Exception($"error finding historian point {ptName}, pipt_findpoint returned error {err}");
             }
             return pointNumber;
         }
@@ -100,7 +99,7 @@ namespace libFTH
             Int32 err = pisn_putsnapshotx(ptId, ref v, ref ival, null, ref bsize, ref istat, ref flags, ref ts);
             if (err != 0)
             {
-                throw new Exception($"pisn_putsnapshotx: {err}");
+                throw new Exception($"pisn_putsnapshotx returned error {err}");
             }
             return true;
         }
@@ -127,7 +126,7 @@ namespace libFTH
                         arr_err = errors[i];
                     }
                 }
-                throw new Exception($"pisn_putsnapshotsx: {err}, item {arr_item}, ts {ts[arr_item]}, err {arr_err}");
+                throw new Exception($"pisn_putsnapshotsx returned error {err}, item {arr_item}, ts {ts[arr_item]}, err {arr_err}");
             }
             return true;
         }
