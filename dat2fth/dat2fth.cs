@@ -62,6 +62,13 @@ namespace dat2fth
 
                 foreach (DatFloatRecord val in dr.ReadFloatFile(floatfile_name))
                 {
+                    if (!val.IsValid) {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Error parsing date in '{floatfile_name}', skipping to next file");
+                        Console.ResetColor();
+                        continue;
+                    }
+                        
                     if (!pointids.ContainsKey(val.tagid))
                         continue;
                     Int32 ptid = pointids[val.tagid];

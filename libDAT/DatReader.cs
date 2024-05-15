@@ -34,14 +34,26 @@ namespace libDAT
         public double val;
         public char status;
         public char marker;
+        public bool IsValid { get; private set; } = true;
 
         public DatFloatRecord(BinaryReader br)
         {
             br.BaseStream.Seek(1, SeekOrigin.Current);
             time_sec = br.ReadChars(16);
-            datetime = DateTime.ParseExact(new string(time_sec), "yyyyMMddHH:mm:ss", CultureInfo.InvariantCulture);
-            milli = Int16.Parse(new string(br.ReadChars(3)));
-            datetime = datetime.AddMilliseconds(milli);
+
+            try
+            {
+                string dateString = new string(time_sec);
+                datetime = DateTime.ParseExact(dateString, "yyyyMMddHH:mm:ss", CultureInfo.InvariantCulture);
+                milli = Int16.Parse(new string(br.ReadChars(3)));
+                datetime = datetime.AddMilliseconds(milli);
+            }
+            catch (FormatException)
+            {
+                IsValid = false;
+                return; 
+            }
+
             tagid = Int16.Parse(new string(br.ReadChars(5)));
             val = br.ReadDouble();
             status = br.ReadChar();
