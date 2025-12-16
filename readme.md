@@ -77,7 +77,7 @@ This script imports up to 16GB of raw DAT files per hour into Historian by using
 
 When running the import from a clean remote node the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. If you run the import script directly on historian server machine, it is probably already installed. 
 
-When running remotely, don't forget to add write permissions (assign `piadmin` user) to remote IP address (SMT > Security > Mappings & Trusts). You can also limit access by process name `dat2E` . That is whatever you put into ` piut_setprocname ` trimmed to 4 chars plus the `E` symbol (ethernet?). If the connection is not successful check SMT > Operation > Message Logs.
+When running remotely, don't forget to add write permissions (assign `piadmin` user) to remote IP address (SMT > Security > Mappings & Trusts). You can also limit access by process name `dat2E` . That is whatever you put into ` piut_setprocname ` trimmed to 4 chars plus the `E` character (Ethernet?). If the connection is not successful check SMT > Operation > Message Logs.
 
 You still have to create all Historian points manually *before starting the import*, as described earlier in `dat2csv`. If you use a fresh archive, stop incoming real-time data collection, and specify reasonable compression options (`CompDev`) for each point, the imported data should be compressed on the fly.
 
@@ -87,5 +87,5 @@ You still have to create all Historian points manually *before starting the impo
 dat2fth ServerName PointPrefix [Path]
 ```
 
-Reads all  `* (Float).DAT` files in `Path`. Pushes the values onto a FactoryTalk Historian server located at  `ServerName`, using point names `(PointPrefix+Tagname).replace('/' -> '.')` since Historian does not allow slashes in point names.
+Reads all  `* (Float).DAT` files in current directory, or `Path`. Pushes the values onto a FactoryTalk Historian server located at  `ServerName`, using point names `(PointPrefix+Tagname).replace('/' -> '.')` since Historian does not allow slashes in point names.
 
