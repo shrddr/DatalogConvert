@@ -71,7 +71,7 @@ Keep in mind that `piconfig`-based backfill is *extremely* slow (10-15 MB of DAT
 
 ## dat2fth
 
-This script imports up to 16GB of raw DAT files per hour into Historian by using low level C API (piapi.dll).
+This script imports up to 16GB of raw DAT files per hour directly into Historian (skipping the CSV step) by using low level C API (piapi.dll).
 
 #### Requirements
 
