@@ -44,13 +44,13 @@ Existing SQL tables will be dropped and recreated.
 
 ## dat2csv
 
-Creates a CSV data file to import the file-based datalog into FactoryTalk Historian. This process is also referred to as *backfill* in Historian docs.
+Creates an intermediate CSV data file from a FTView file-based datalog, used for importing into FactoryTalk Historian. This process is also referred to as *backfill* in Historian docs.
 
 ```
 dat2csv PointPrefix [InputPath]
 ```
 
-`PointPrefix` refers to your Historian point names. If you create these using Historian auto-discovery they are all going to start with `ViewAppName:HmiServerName:` - might be a good idea to mimic that for consistency. The script also replaces `/` with `.` in tag names, just like auto-discovery.
+Each Historian point name to fill is formed as the concatenation of `PointPrefix` and the datalogged tag name. If you created Historian tags using auto-discovery they are all going to start with `ViewAppName:HmiServerName:` - might be a good idea to mimic that for consistency. The script also replaces `/` with `.` in tag names, just like auto-discovery does.
 
 Specify `InputPath` if the DAT files are not in current directory.
 
@@ -75,9 +75,9 @@ This script imports up to 16GB of raw DAT files per hour directly into Historian
 
 #### Requirements
 
-When running the import from a clean remote node the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. If you run the import script directly on historian server machine, it is probably already installed. 
+When running the import from a clean remote node the only thing I had to install is `6.00.00-FTHistorian-SE-DVD\Redist\Enterprise\piapi_X64.msi`. If you run `dat2fth` locally on historian server machine, it is probably already installed. 
 
-When running remotely, don't forget to add write permissions (assign `piadmin` user) to the IP address you run `dat2fth` from (SMT > Security > Mappings & Trusts). You can also further limit access by process name `dat2E` . That is whatever you put into `piut_setprocname` trimmed to 4 chars plus the `E` character (Ethernet?). If the connection is not successful, check SMT > Operation > Message Logs.
+When running remotely, don't forget to add write permissions (assign `piadmin` user) to the IP address you run `dat2fth` from (SMT > Security > Mappings & Trusts). You can also further limit access by process name `dat2E` . That is whatever you put into `piut_setprocname` trimmed to 4 chars plus the `E` character (Ethernet?). If the connection is not successful, check SMT > Operation > Message Logs for possible reasons.
 
 You still have to create all Historian points manually *before starting the import*, as described earlier in `dat2csv`. If you use a fresh archive, stop incoming real-time data collection, and specify reasonable compression options (`CompDev`) for each point, the imported data should be compressed on the fly.
 
@@ -87,5 +87,5 @@ You still have to create all Historian points manually *before starting the impo
 dat2fth ServerName PointPrefix [Path]
 ```
 
-Reads all  `* (Float).DAT` files in current directory, or `Path`. Pushes the values onto a FactoryTalk Historian server located at  `ServerName`, using point names `(PointPrefix+Tagname).replace('/' -> '.')` since Historian does not allow slashes in point names.
+Reads all  `* (Float).DAT` files in current directory, or `Path`. Pushes the values onto a FactoryTalk Historian server located at `ServerName`, using point names `(PointPrefix+DatTagname).replace('/' -> '.')` (slashes are not supported by Historian).
 
